@@ -1,0 +1,23 @@
+server:
+  name: "project-user"
+  addr: "127.0.0.1:8081"
+zap:
+  DebugFileName: "G:\\Go\\wh_project\\logs\\debug\\project-debug.log"
+  InfoFileName:  "G:\\Go\\wh_project\\logs\\info\\project-info.log"
+  WarnFileName:  "G:\\Go\\wh_project\\logs\\error\\project-error.log"
+  MaxSize: 500
+  MaxAge: 28
+  MaxBackups: 3
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  password: "123456"
+  db: 0
+grpc:
+  addr: "127.0.0.1:8881"
+  name: "user"
+  version: "1.0.0"
+  weight: 2
+etcd:
+  addrs:
+    - "127.0.0.1:2379"

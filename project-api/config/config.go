@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"gwh.com/project-common/logs"
 )
@@ -14,7 +13,6 @@ var AppConf = InitConfig()
 type Config struct {
 	viper *viper.Viper
 	SC    *ServerConfig
-	GC    *GrpcConfig
 	EC    *EtcdConfig
 }
 
@@ -22,14 +20,6 @@ type ServerConfig struct {
 	Name string
 	Addr string
 }
-
-type GrpcConfig struct {
-	Name    string
-	Addr    string
-	Version string
-	Weight  int64
-}
-
 type EtcdConfig struct {
 	Addrs []string
 }
@@ -38,7 +28,7 @@ func InitConfig() *Config {
 	v := viper.New()
 	conf := &Config{viper: v}
 	workDir, _ := os.Getwd()
-	conf.viper.SetConfigName("config")
+	conf.viper.SetConfigName("app")
 	conf.viper.SetConfigType("yaml")
 	conf.viper.AddConfigPath(workDir + "/config")
 
@@ -49,7 +39,6 @@ func InitConfig() *Config {
 	}
 	conf.ReadServerConfig()
 	conf.InitZapLog()
-	conf.ReadGrpcConfig()
 	conf.ReadEtcdConfig()
 	return conf
 }
@@ -71,30 +60,12 @@ func (c *Config) InitZapLog() {
 	}
 }
 
-func (c *Config) InitRedisOptions() *redis.Options {
-	return &redis.Options{
-		Addr:     c.viper.GetString("redis.host") + ":" + c.viper.GetString("redis.port"),
-		Password: c.viper.GetString("redis.password"), // no password set
-		DB:       c.viper.GetInt("redis.db"),          // use default DB
-	}
-}
-
 func (c *Config) ReadServerConfig() {
 	sc := &ServerConfig{
 		Name: c.viper.GetString("server.name"),
 		Addr: c.viper.GetString("server.addr"),
 	}
 	c.SC = sc
-}
-
-func (c *Config) ReadGrpcConfig() {
-	gc := &GrpcConfig{
-		Name:    c.viper.GetString("grpc.name"),
-		Addr:    c.viper.GetString("grpc.addr"),
-		Version: c.viper.GetString("grpc.version"),
-		Weight:  c.viper.GetInt64("grpc.weight"),
-	}
-	c.GC = gc
 }
 
 func (c *Config) ReadEtcdConfig() {
