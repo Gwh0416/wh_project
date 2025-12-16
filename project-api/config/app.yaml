@@ -1,6 +1,6 @@
 server:
   name: "project-api"
-  addr: "127.0.0.1:8080"
+  addr: "127.0.0.1:80"
 zap:
   DebugFileName: "G:\\Go\\wh_project\\logs\\debug\\project-debug.log"
   InfoFileName:  "G:\\Go\\wh_project\\logs\\info\\project-info.log"

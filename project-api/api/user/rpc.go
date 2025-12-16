@@ -9,7 +9,7 @@ import (
 	"gwh.com/project-api/config"
 	"gwh.com/project-common/discovery"
 	"gwh.com/project-common/logs"
-	"gwh.com/project-grpc/user/login"
+	login "gwh.com/project-grpc/user/login"
 )
 
 var LoginServiceClient login.LoginServiceClient

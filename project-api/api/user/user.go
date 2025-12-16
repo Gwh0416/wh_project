@@ -28,7 +28,7 @@ func (h *HandlerUser) getCaptcha(c *gin.Context) {
 	defer cancel()
 	captchaResp, err := LoginServiceClient.GetCaptcha(ctx, &login.CaptchaRequest{Mobile: phone})
 	if err != nil {
-		code, msg := errs.PraseGrpcError(err)
+		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, resp.Fail(code, msg))
 		return
 	}
@@ -59,10 +59,42 @@ func (h *HandlerUser) register(c *gin.Context) {
 	}
 	_, err = LoginServiceClient.Register(ctx, registerRequest)
 	if err != nil {
-		code, msg := errs.PraseGrpcError(err)
+		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, resp.Fail(code, msg))
 		return
 	}
 	//返回结果
 	c.JSON(http.StatusOK, resp.Success(nil))
+}
+
+func (h *HandlerUser) login(c *gin.Context) {
+	resp := &common.Result{}
+	var req user.LoginReq
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(http.StatusOK, resp.Fail(http.StatusBadRequest, "参数格式有误"))
+		return
+	}
+	//调用user grpc 完成登录
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	registerRequest := &login.LoginMessage{}
+	err := copier.Copy(registerRequest, req)
+	if err != nil {
+		c.JSON(http.StatusOK, resp.Fail(http.StatusBadRequest, "copy参数格式有误"))
+		return
+	}
+	loginResp, err := LoginServiceClient.Login(ctx, registerRequest)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, resp.Fail(code, msg))
+		return
+	}
+	result := &user.LoginResp{}
+	err = copier.Copy(result, loginResp)
+	if err != nil {
+		c.JSON(http.StatusOK, resp.Fail(http.StatusBadRequest, "copy参数格式有误"))
+		return
+	}
+	//返回结果
+	c.JSON(http.StatusOK, resp.Success(result))
 }

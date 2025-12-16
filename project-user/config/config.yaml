@@ -1,6 +1,6 @@
 server:
   name: "project-user"
-  addr: "127.0.0.1:8081"
+  addr: "127.0.0.1:8080"
 zap:
   DebugFileName: "G:\\Go\\wh_project\\logs\\debug\\project-debug.log"
   InfoFileName:  "G:\\Go\\wh_project\\logs\\info\\project-info.log"
@@ -21,3 +21,14 @@ grpc:
 etcd:
   addrs:
     - "127.0.0.1:2379"
+mysql:
+  username: root
+  password: "Gwh0416."
+  host: "127.0.0.1"
+  port: 3309
+  db: whproject
+jwt:
+  accessExp: 2
+  refreshExp: 14
+  accessSecret: whproject
+  refreshSecret: wh_project

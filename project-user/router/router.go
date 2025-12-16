@@ -61,6 +61,7 @@ func RegisterGrpc() *grpc.Server {
 		log.Println("cannot listen")
 	}
 	go func() {
+		log.Printf("grpc server started as: %s \n", c.Addr)
 		err = s.Serve(lis)
 		if err != nil {
 			log.Println("server started error", err)

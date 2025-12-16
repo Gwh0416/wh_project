@@ -10,7 +10,7 @@ func GrpcError(err *BError) error {
 	return status.Errorf(codes.Code(err.Code), err.Msg)
 }
 
-func PraseGrpcError(err error) (common.BusinessCode, string) {
+func ParseGrpcError(err error) (common.BusinessCode, string) {
 	fromError, _ := status.FromError(err)
 	code := fromError.Code()
 	msg := fromError.Message()
