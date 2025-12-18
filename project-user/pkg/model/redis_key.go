@@ -1,5 +1,7 @@
 package model
 
-var (
-	PhoneRegisKey = "PHONE_"
+const (
+	PhoneRegisKey      = "PHONE_"
+	Member             = "MEMBER"
+	MemberOrganization = "MEMBER_ORGANIZATION"
 )

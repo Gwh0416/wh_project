@@ -11,6 +11,7 @@ import (
 	"gwh.com/project-common/logs"
 	"gwh.com/project-grpc/user/login"
 	"gwh.com/project-user/config"
+	"gwh.com/project-user/internal/interceptor"
 	login_service_v1 "gwh.com/project-user/pkg/service/login.service.v1"
 )
 
@@ -54,7 +55,8 @@ func RegisterGrpc() *grpc.Server {
 		RegisterFunc: func(g *grpc.Server) {
 			login.RegisterLoginServiceServer(g, login_service_v1.NewLoginService())
 		}}
-	s := grpc.NewServer()
+	cacheInterceptor := interceptor.New()
+	s := grpc.NewServer(cacheInterceptor.Cache())
 	c.RegisterFunc(s)
 	lis, err := net.Listen("tcp", c.Addr)
 	if err != nil {

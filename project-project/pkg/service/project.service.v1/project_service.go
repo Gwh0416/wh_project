@@ -3,7 +3,6 @@ package project_service_v1
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -234,7 +233,6 @@ func (ps *ProjectService) FindProjectDetail(ctx context.Context, msg *project.Pr
 		zap.L().Error("project FindProjectDetail FindProjectByPIdAndMemId error", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
 	}
-	fmt.Println(projectAndMember)
 	ownerId := projectAndMember.IsOwner
 	member, err := rpc.LoginServiceClient.FindMemInfoById(c, &login.UserMessage{MemId: ownerId})
 	if err != nil {
