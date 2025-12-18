@@ -19,7 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectService_Index_FullMethodName = "/project.service.v1.ProjectService/Index"
+	ProjectService_Index_FullMethodName                = "/project.service.v1.ProjectService/Index"
+	ProjectService_FindProjectByMemId_FullMethodName   = "/project.service.v1.ProjectService/FindProjectByMemId"
+	ProjectService_FindProjectTemplate_FullMethodName  = "/project.service.v1.ProjectService/FindProjectTemplate"
+	ProjectService_SaveProject_FullMethodName          = "/project.service.v1.ProjectService/SaveProject"
+	ProjectService_FindProjectDetail_FullMethodName    = "/project.service.v1.ProjectService/FindProjectDetail"
+	ProjectService_UpdateDeleteProject_FullMethodName  = "/project.service.v1.ProjectService/UpdateDeleteProject"
+	ProjectService_UpdateCollectProject_FullMethodName = "/project.service.v1.ProjectService/UpdateCollectProject"
+	ProjectService_UpdateProject_FullMethodName        = "/project.service.v1.ProjectService/UpdateProject"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
@@ -27,6 +34,13 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProjectServiceClient interface {
 	Index(ctx context.Context, in *IndexMessage, opts ...grpc.CallOption) (*IndexResponse, error)
+	FindProjectByMemId(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*MyProjectResponse, error)
+	FindProjectTemplate(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*ProjectTemplateResponse, error)
+	SaveProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*SaveProjectMessage, error)
+	FindProjectDetail(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*ProjectDetailMessage, error)
+	UpdateDeleteProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*DeletedProjectResponse, error)
+	UpdateCollectProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*CollectProjectResponse, error)
+	UpdateProject(ctx context.Context, in *UpdateProjectMessage, opts ...grpc.CallOption) (*UpdateProjectResponse, error)
 }
 
 type projectServiceClient struct {
@@ -47,11 +61,88 @@ func (c *projectServiceClient) Index(ctx context.Context, in *IndexMessage, opts
 	return out, nil
 }
 
+func (c *projectServiceClient) FindProjectByMemId(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*MyProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MyProjectResponse)
+	err := c.cc.Invoke(ctx, ProjectService_FindProjectByMemId_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) FindProjectTemplate(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*ProjectTemplateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProjectTemplateResponse)
+	err := c.cc.Invoke(ctx, ProjectService_FindProjectTemplate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) SaveProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*SaveProjectMessage, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SaveProjectMessage)
+	err := c.cc.Invoke(ctx, ProjectService_SaveProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) FindProjectDetail(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*ProjectDetailMessage, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProjectDetailMessage)
+	err := c.cc.Invoke(ctx, ProjectService_FindProjectDetail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) UpdateDeleteProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*DeletedProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeletedProjectResponse)
+	err := c.cc.Invoke(ctx, ProjectService_UpdateDeleteProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) UpdateCollectProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*CollectProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CollectProjectResponse)
+	err := c.cc.Invoke(ctx, ProjectService_UpdateCollectProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *projectServiceClient) UpdateProject(ctx context.Context, in *UpdateProjectMessage, opts ...grpc.CallOption) (*UpdateProjectResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProjectResponse)
+	err := c.cc.Invoke(ctx, ProjectService_UpdateProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
 type ProjectServiceServer interface {
 	Index(context.Context, *IndexMessage) (*IndexResponse, error)
+	FindProjectByMemId(context.Context, *ProjectRpcMessage) (*MyProjectResponse, error)
+	FindProjectTemplate(context.Context, *ProjectRpcMessage) (*ProjectTemplateResponse, error)
+	SaveProject(context.Context, *ProjectRpcMessage) (*SaveProjectMessage, error)
+	FindProjectDetail(context.Context, *ProjectRpcMessage) (*ProjectDetailMessage, error)
+	UpdateDeleteProject(context.Context, *ProjectRpcMessage) (*DeletedProjectResponse, error)
+	UpdateCollectProject(context.Context, *ProjectRpcMessage) (*CollectProjectResponse, error)
+	UpdateProject(context.Context, *UpdateProjectMessage) (*UpdateProjectResponse, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -64,6 +155,27 @@ type UnimplementedProjectServiceServer struct{}
 
 func (UnimplementedProjectServiceServer) Index(context.Context, *IndexMessage) (*IndexResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Index not implemented")
+}
+func (UnimplementedProjectServiceServer) FindProjectByMemId(context.Context, *ProjectRpcMessage) (*MyProjectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindProjectByMemId not implemented")
+}
+func (UnimplementedProjectServiceServer) FindProjectTemplate(context.Context, *ProjectRpcMessage) (*ProjectTemplateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindProjectTemplate not implemented")
+}
+func (UnimplementedProjectServiceServer) SaveProject(context.Context, *ProjectRpcMessage) (*SaveProjectMessage, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveProject not implemented")
+}
+func (UnimplementedProjectServiceServer) FindProjectDetail(context.Context, *ProjectRpcMessage) (*ProjectDetailMessage, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindProjectDetail not implemented")
+}
+func (UnimplementedProjectServiceServer) UpdateDeleteProject(context.Context, *ProjectRpcMessage) (*DeletedProjectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateDeleteProject not implemented")
+}
+func (UnimplementedProjectServiceServer) UpdateCollectProject(context.Context, *ProjectRpcMessage) (*CollectProjectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateCollectProject not implemented")
+}
+func (UnimplementedProjectServiceServer) UpdateProject(context.Context, *UpdateProjectMessage) (*UpdateProjectResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateProject not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -104,6 +216,132 @@ func _ProjectService_Index_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_FindProjectByMemId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).FindProjectByMemId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_FindProjectByMemId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).FindProjectByMemId(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_FindProjectTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).FindProjectTemplate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_FindProjectTemplate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).FindProjectTemplate(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_SaveProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).SaveProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_SaveProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).SaveProject(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_FindProjectDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).FindProjectDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_FindProjectDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).FindProjectDetail(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_UpdateDeleteProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).UpdateDeleteProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_UpdateDeleteProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).UpdateDeleteProject(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_UpdateCollectProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).UpdateCollectProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_UpdateCollectProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).UpdateCollectProject(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProjectService_UpdateProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProjectMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).UpdateProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_UpdateProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).UpdateProject(ctx, req.(*UpdateProjectMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +352,34 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Index",
 			Handler:    _ProjectService_Index_Handler,
+		},
+		{
+			MethodName: "FindProjectByMemId",
+			Handler:    _ProjectService_FindProjectByMemId_Handler,
+		},
+		{
+			MethodName: "FindProjectTemplate",
+			Handler:    _ProjectService_FindProjectTemplate_Handler,
+		},
+		{
+			MethodName: "SaveProject",
+			Handler:    _ProjectService_SaveProject_Handler,
+		},
+		{
+			MethodName: "FindProjectDetail",
+			Handler:    _ProjectService_FindProjectDetail_Handler,
+		},
+		{
+			MethodName: "UpdateDeleteProject",
+			Handler:    _ProjectService_UpdateDeleteProject_Handler,
+		},
+		{
+			MethodName: "UpdateCollectProject",
+			Handler:    _ProjectService_UpdateCollectProject_Handler,
+		},
+		{
+			MethodName: "UpdateProject",
+			Handler:    _ProjectService_UpdateProject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

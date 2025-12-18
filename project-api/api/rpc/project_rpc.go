@@ -1,4 +1,4 @@
-package user
+package rpc
 
 import (
 	"log"
@@ -9,17 +9,17 @@ import (
 	"gwh.com/project-api/config"
 	"gwh.com/project-common/discovery"
 	"gwh.com/project-common/logs"
-	login "gwh.com/project-grpc/user/login"
+	"gwh.com/project-grpc/project"
 )
 
-var LoginServiceClient login.LoginServiceClient
+var ProjectServiceClient project.ProjectServiceClient
 
-func InitRpcUserClient() {
+func InitRpcProjectClient() {
 	etcdRegister := discovery.NewResolver(config.AppConf.EC.Addrs, logs.LG)
 	resolver.Register(etcdRegister)
-	conn, err := grpc.NewClient("etcd:///user", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("etcd:///project", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	LoginServiceClient = login.NewLoginServiceClient(conn)
+	ProjectServiceClient = project.NewProjectServiceClient(conn)
 }

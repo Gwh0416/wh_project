@@ -1,8 +1,34 @@
 package model
 
-var (
+const (
 	Normal         = 1
 	Personal int32 = 1
 )
 
-var AESkey = "qwertyuiopasdfghjklzxcvb"
+const AESKey = "qwertyuiopasdfghjklzxcvb"
+
+const (
+	NoDeleted = 0
+	Deleted   = 1
+)
+
+const (
+	NoArchive = 0
+	Archive   = 1
+)
+
+const (
+	Open    = 0
+	Private = 1
+	Custom  = 2
+)
+
+const (
+	Default = "default"
+	Simple  = "simple"
+)
+
+const (
+	NoCollected = 0
+	Collected   = 1
+)

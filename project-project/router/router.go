@@ -11,6 +11,7 @@ import (
 	"gwh.com/project-common/logs"
 	"gwh.com/project-grpc/project"
 	"gwh.com/project-project/config"
+	"gwh.com/project-project/internal/rpc"
 	project_service_v1 "gwh.com/project-project/pkg/service/project.service.v1"
 )
 
@@ -85,4 +86,8 @@ func RegisterEtcdServer() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func InitUserRpc() {
+	rpc.InitRpcUserClient()
 }

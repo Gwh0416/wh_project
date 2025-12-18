@@ -15,5 +15,7 @@ func main() {
 	stop := func() {
 		gc.Stop()
 	}
+	//初始化rpc
+	router.InitUserRpc()
 	common.Run(r, config.AppConf.SC.Name, config.AppConf.SC.Addr, stop)
 }

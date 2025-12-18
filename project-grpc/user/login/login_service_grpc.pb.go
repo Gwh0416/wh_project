@@ -19,10 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LoginService_GetCaptcha_FullMethodName  = "/login.service.v1.LoginService/GetCaptcha"
-	LoginService_Register_FullMethodName    = "/login.service.v1.LoginService/Register"
-	LoginService_Login_FullMethodName       = "/login.service.v1.LoginService/Login"
-	LoginService_TokenVerify_FullMethodName = "/login.service.v1.LoginService/TokenVerify"
+	LoginService_GetCaptcha_FullMethodName      = "/login.service.v1.LoginService/GetCaptcha"
+	LoginService_Register_FullMethodName        = "/login.service.v1.LoginService/Register"
+	LoginService_Login_FullMethodName           = "/login.service.v1.LoginService/Login"
+	LoginService_TokenVerify_FullMethodName     = "/login.service.v1.LoginService/TokenVerify"
+	LoginService_MyOrgList_FullMethodName       = "/login.service.v1.LoginService/MyOrgList"
+	LoginService_FindMemInfoById_FullMethodName = "/login.service.v1.LoginService/FindMemInfoById"
 )
 
 // LoginServiceClient is the client API for LoginService service.
@@ -33,6 +35,8 @@ type LoginServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginMessage, opts ...grpc.CallOption) (*LoginResponse, error)
 	TokenVerify(ctx context.Context, in *LoginMessage, opts ...grpc.CallOption) (*LoginResponse, error)
+	MyOrgList(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*OrgListResponse, error)
+	FindMemInfoById(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessage, error)
 }
 
 type loginServiceClient struct {
@@ -83,6 +87,26 @@ func (c *loginServiceClient) TokenVerify(ctx context.Context, in *LoginMessage, 
 	return out, nil
 }
 
+func (c *loginServiceClient) MyOrgList(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*OrgListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrgListResponse)
+	err := c.cc.Invoke(ctx, LoginService_MyOrgList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loginServiceClient) FindMemInfoById(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessage, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MemberMessage)
+	err := c.cc.Invoke(ctx, LoginService_FindMemInfoById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LoginServiceServer is the server API for LoginService service.
 // All implementations must embed UnimplementedLoginServiceServer
 // for forward compatibility.
@@ -91,6 +115,8 @@ type LoginServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginMessage) (*LoginResponse, error)
 	TokenVerify(context.Context, *LoginMessage) (*LoginResponse, error)
+	MyOrgList(context.Context, *UserMessage) (*OrgListResponse, error)
+	FindMemInfoById(context.Context, *UserMessage) (*MemberMessage, error)
 	mustEmbedUnimplementedLoginServiceServer()
 }
 
@@ -112,6 +138,12 @@ func (UnimplementedLoginServiceServer) Login(context.Context, *LoginMessage) (*L
 }
 func (UnimplementedLoginServiceServer) TokenVerify(context.Context, *LoginMessage) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TokenVerify not implemented")
+}
+func (UnimplementedLoginServiceServer) MyOrgList(context.Context, *UserMessage) (*OrgListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MyOrgList not implemented")
+}
+func (UnimplementedLoginServiceServer) FindMemInfoById(context.Context, *UserMessage) (*MemberMessage, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindMemInfoById not implemented")
 }
 func (UnimplementedLoginServiceServer) mustEmbedUnimplementedLoginServiceServer() {}
 func (UnimplementedLoginServiceServer) testEmbeddedByValue()                      {}
@@ -206,6 +238,42 @@ func _LoginService_TokenVerify_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LoginService_MyOrgList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).MyOrgList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_MyOrgList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).MyOrgList(ctx, req.(*UserMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LoginService_FindMemInfoById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).FindMemInfoById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_FindMemInfoById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).FindMemInfoById(ctx, req.(*UserMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LoginService_ServiceDesc is the grpc.ServiceDesc for LoginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +296,14 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TokenVerify",
 			Handler:    _LoginService_TokenVerify_Handler,
+		},
+		{
+			MethodName: "MyOrgList",
+			Handler:    _LoginService_MyOrgList_Handler,
+		},
+		{
+			MethodName: "FindMemInfoById",
+			Handler:    _LoginService_FindMemInfoById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

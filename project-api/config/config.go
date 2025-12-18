@@ -28,7 +28,7 @@ func InitConfig() *Config {
 	v := viper.New()
 	conf := &Config{viper: v}
 	workDir, _ := os.Getwd()
-	conf.viper.SetConfigName("app")
+	conf.viper.SetConfigName("config")
 	conf.viper.SetConfigType("yaml")
 	conf.viper.AddConfigPath(workDir + "/config")
 

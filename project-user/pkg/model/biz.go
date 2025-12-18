@@ -5,4 +5,4 @@ var (
 	Personal int32 = 1
 )
 
-var AESkey = "qwertyuiopasdfghjklzxcvb"
+var AESKey = "qwertyuiopasdfghjklzxcvb"
