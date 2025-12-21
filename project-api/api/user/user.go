@@ -68,6 +68,15 @@ func (h *HandlerUser) register(c *gin.Context) {
 	c.JSON(http.StatusOK, resp.Success(nil))
 }
 
+// GetIp 获取ip函数
+func GetIp(c *gin.Context) string {
+	ip := c.ClientIP()
+	if ip == "::1" {
+		ip = "127.0.0.1"
+	}
+	return ip
+}
+
 func (h *HandlerUser) login(c *gin.Context) {
 	resp := &common.Result{}
 	var req user.LoginReq
@@ -84,6 +93,7 @@ func (h *HandlerUser) login(c *gin.Context) {
 		c.JSON(http.StatusOK, resp.Fail(http.StatusBadRequest, "copy参数格式有误"))
 		return
 	}
+	registerRequest.Ip = GetIp(c)
 	loginResp, err := rpc.LoginServiceClient.Login(ctx, registerRequest)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)

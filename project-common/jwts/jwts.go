@@ -16,11 +16,12 @@ type JwtToken struct {
 	RefreshExp   int64
 }
 
-func CreateToken(val string, secret string, refreshSecret string, exp time.Duration, refreshExp time.Duration) *JwtToken {
+func CreateToken(val string, secret string, refreshSecret string, exp time.Duration, refreshExp time.Duration, ip string) *JwtToken {
 	aExp := time.Now().Add(exp).Unix()
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"token": val,
 		"exp":   aExp,
+		"ip":    ip,
 	})
 	atoken, err := accessToken.SignedString([]byte(secret))
 	if err != nil {
@@ -45,7 +46,7 @@ func CreateToken(val string, secret string, refreshSecret string, exp time.Durat
 	}
 }
 
-func ParseToken(tokenString string, secret string) (string, error) {
+func ParseToken(tokenString string, secret string, ip string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -62,6 +63,9 @@ func ParseToken(tokenString string, secret string) (string, error) {
 		var exp = int64(claims["exp"].(float64))
 		if exp <= time.Now().Unix() {
 			return "", errors.New("token已过期")
+		}
+		if claims["ip"] != ip {
+			return "", errors.New("ip不合法")
 		}
 		return token, nil
 

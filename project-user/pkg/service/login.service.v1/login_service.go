@@ -183,7 +183,7 @@ func (ls *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*lo
 	aExp := time.Duration(config.AppConf.JC.AccessExp) * 3600 * 24 * time.Second
 	rExp := time.Duration(config.AppConf.JC.RefreshExp) * 3600 * 24 * time.Second
 
-	token := jwts.CreateToken(memIdStr, config.AppConf.JC.AccessSecret, config.AppConf.JC.RefreshSecret, aExp, rExp)
+	token := jwts.CreateToken(memIdStr, config.AppConf.JC.AccessSecret, config.AppConf.JC.RefreshSecret, aExp, rExp, msg.Ip)
 	tokenList := &login.TokenMessage{
 		AccessToken:    token.AccessToken,
 		RefreshToken:   token.RefreshToken,
@@ -211,7 +211,7 @@ func (ls *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage
 	if strings.Contains(token, "bearer") {
 		token = strings.Replace(token, "bearer ", "", 1)
 	}
-	parseToken, err := jwts.ParseToken(token, config.AppConf.JC.AccessSecret)
+	parseToken, err := jwts.ParseToken(token, config.AppConf.JC.AccessSecret, msg.Ip)
 	if err != nil {
 		zap.L().Error("TokenVerify ParseToken err:", zap.Error(err))
 		return nil, errs.GrpcError(model.NoLogin)
@@ -288,4 +288,28 @@ func (ls *LoginService) FindMemInfoById(ctx context.Context, msg *login.UserMess
 	}
 	memMsg.CreateTime = tms.FormatByMill(memberById.CreateTime)
 	return memMsg, nil
+}
+
+func (ls *LoginService) FindMemInfoByIds(ctx context.Context, msg *login.UserMessage) (*login.MemberMessageList, error) {
+	memberList, err := ls.memberRepo.FindMemberByIds(context.Background(), msg.MIds)
+	if err != nil {
+		zap.L().Error("FindMemInfoByIds db memberRepo.FindMemberByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	if memberList == nil || len(memberList) <= 0 {
+		return &login.MemberMessageList{List: nil}, nil
+	}
+	mMap := make(map[int64]*member.Member)
+	for _, v := range memberList {
+		mMap[v.Id] = v
+	}
+	var memMsgs []*login.MemberMessage
+	copier.Copy(&memMsgs, memberList)
+	for _, v := range memMsgs {
+		m := mMap[v.Id]
+		v.CreateTime = tms.FormatByMill(m.CreateTime)
+		v.Code = encrypts.EncryptNoErr(v.Id)
+	}
+
+	return &login.MemberMessageList{List: memMsgs}, nil
 }

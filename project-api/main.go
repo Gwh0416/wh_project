@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	_ "gwh.com/project-api/api"
 	"gwh.com/project-api/config"
@@ -10,6 +12,8 @@ import (
 
 func main() {
 	r := gin.Default()
+	//r.Use(midd.RequestLog())
+	r.StaticFS("/upload", http.Dir("upload"))
 	router.InitRouter(r)
 	common.Run(r, config.AppConf.SC.Name, config.AppConf.SC.Addr, nil)
 }

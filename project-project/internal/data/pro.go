@@ -1,9 +1,8 @@
-package pro
+package data
 
 import (
 	"gwh.com/project-common/encrypts"
 	"gwh.com/project-common/tms"
-	"gwh.com/project-project/internal/data/task"
 	"gwh.com/project-project/pkg/model"
 )
 
@@ -38,6 +37,14 @@ func (*Project) TableName() string {
 	return "ms_project"
 }
 
+func ToProjectMap(list []*Project) map[int64]*Project {
+	m := make(map[int64]*Project, len(list))
+	for _, v := range list {
+		m[v.Id] = v
+	}
+	return m
+}
+
 type MemberProject struct {
 	Id          int64
 	ProjectCode int64
@@ -63,6 +70,19 @@ type ProjectAndMember struct {
 }
 
 func (m *ProjectAndMember) GetAccessControlType() string {
+	if m.AccessControlType == 0 {
+		return "open"
+	}
+	if m.AccessControlType == 1 {
+		return "private"
+	}
+	if m.AccessControlType == 2 {
+		return "custom"
+	}
+	return ""
+}
+
+func (m *Project) GetAccessControlType() string {
 	if m.AccessControlType == 0 {
 		return "open"
 	}
@@ -120,11 +140,11 @@ type ProjectTemplateAll struct {
 	Cover            string
 	MemberCode       string
 	IsSystem         int
-	TaskStages       []*task.TaskStagesOnlyName
+	TaskStages       []*TaskStagesOnlyName
 	Code             string
 }
 
-func (pt ProjectTemplate) Convert(taskStages []*task.TaskStagesOnlyName) *ProjectTemplateAll {
+func (pt ProjectTemplate) Convert(taskStages []*TaskStagesOnlyName) *ProjectTemplateAll {
 	organizationCode, _ := encrypts.EncryptInt64(pt.OrganizationCode, model.AESKey)
 	memberCode, _ := encrypts.EncryptInt64(pt.MemberCode, model.AESKey)
 	code, _ := encrypts.EncryptInt64(int64(pt.Id), model.AESKey)
@@ -149,4 +169,21 @@ func ToProjectTemplateIds(pts []ProjectTemplate) []int {
 		ids = append(ids, v.Id)
 	}
 	return ids
+}
+
+type ProjectMemberInfo struct {
+	ProjectCode int64
+	MemberCode  int64
+	Name        string
+	Avatar      string
+	IsOwner     int64
+	Email       string
+}
+
+func ToProjectMemberInfoMap(pm []*ProjectMemberInfo) map[int64]*ProjectMemberInfo {
+	m := make(map[int64]*ProjectMemberInfo)
+	for _, v := range pm {
+		m[v.MemberCode] = v
+	}
+	return m
 }

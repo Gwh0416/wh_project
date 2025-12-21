@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gwh.com/project-common/encrypts"
-	"gwh.com/project-grpc/user/login"
 	"gwh.com/project-user/internal/dao"
 	"gwh.com/project-user/internal/repo"
 )
@@ -26,8 +25,8 @@ type CacheRespOption struct {
 
 func New() *CacheInterceptor {
 	cacheMap := make(map[string]any)
-	cacheMap["/login.service.v1.LoginService/MyOrgList"] = &login.OrgListResponse{}
-	cacheMap["/login.service.v1.LoginService/FindMemInfoById"] = &login.MemberMessage{}
+	//cacheMap["/login.service.v1.LoginService/MyOrgList"] = &login.OrgListResponse{}
+	//cacheMap["/login.service.v1.LoginService/FindMemInfoById"] = &login.MemberMessage{}
 	return &CacheInterceptor{cache: dao.Rc, cacheMap: cacheMap}
 }
 

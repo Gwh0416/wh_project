@@ -33,4 +33,23 @@ func (*RouterProject) Register(r *gin.Engine) {
 	group.POST("/project/recovery", h.recoveryProject)
 	group.POST("/project_collect/collect", h.collectProject)
 	group.POST("/project/edit", h.editProject)
+	group.POST("/project/getLogBySelfProject", h.getLogBySelfProject)
+
+	t := NewTask()
+	group.POST("/task_stages", t.taskStages)
+	group.POST("/project_member/index", t.taskMemberList)
+	group.POST("/task_stages/tasks", t.taskList)
+	group.POST("/task/save", t.saveTask)
+	group.POST("/task/sort", t.taskSort)
+	group.POST("/task/selfList", t.myTaskList)
+	group.POST("/task/read", t.readTask)
+	group.POST("/task_member", t.listTaskMember)
+	group.POST("/task/taskLog", t.taskLog)
+	group.POST("/task/_taskWorkTimeList", t.taskWorkTimeList)
+	group.POST("/task/saveTaskWorkTime", t.saveTaskWorkTime)
+	group.POST("/file/uploadFiles", t.uploadFiles)
+	group.POST("/task/taskSources", t.taskSources)
+	group.POST("/task/createComment", t.createComment)
+	group.POST("/task/taskDone", t.taskDone)
+
 }

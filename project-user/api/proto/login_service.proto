@@ -20,7 +20,9 @@ message RegisterRequest{
 message RegisterResponse{
 
 }
-
+message MemberMessageList {
+  repeated MemberMessage list = 1;
+}
 
 service LoginService {
   rpc GetCaptcha(CaptchaRequest) returns (CaptchaResponse) {}
@@ -29,6 +31,8 @@ service LoginService {
   rpc TokenVerify(LoginMessage) returns (LoginResponse) {}
   rpc MyOrgList(UserMessage) returns (OrgListResponse) {}
   rpc FindMemInfoById(UserMessage) returns (MemberMessage) {}
+  rpc FindMemInfoByIds(UserMessage) returns (MemberMessageList) {}
+
 }
 
 
@@ -37,6 +41,7 @@ message LoginMessage {
   string account = 1;
   string password = 2;
   string token = 3;
+  string ip = 4;
 }
 message LoginResponse{
   MemberMessage member = 1;
@@ -86,6 +91,7 @@ message TokenMessage{
 
 message UserMessage{
   int64 memId = 1;
+  repeated int64 mIds = 2;
 }
 message OrgListResponse{
   repeated OrganizationMessage organizationList = 1;

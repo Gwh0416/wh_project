@@ -14,9 +14,8 @@ import (
 	"gwh.com/project-grpc/project"
 	"gwh.com/project-grpc/user/login"
 	"gwh.com/project-project/internal/dao"
+	"gwh.com/project-project/internal/data"
 	"gwh.com/project-project/internal/data/menu"
-	"gwh.com/project-project/internal/data/pro"
-	"gwh.com/project-project/internal/data/task"
 	"gwh.com/project-project/internal/database"
 	"gwh.com/project-project/internal/database/tran"
 	"gwh.com/project-project/internal/repo"
@@ -32,6 +31,9 @@ type ProjectService struct {
 	projectRepo            repo.ProjectRepo
 	projectTemplateRepo    repo.ProjectTemplateRepo
 	taskStagesTemplateRepo repo.TaskStagesTemplateRepo
+	taskStagesRepo         repo.TaskStagesRepo
+	projectLogRepo         repo.ProjectLogRepo
+	taskRepo               repo.TaskRepo
 }
 
 func NewProjectService() *ProjectService {
@@ -42,6 +44,9 @@ func NewProjectService() *ProjectService {
 		projectRepo:            dao.NewProjectDao(),
 		projectTemplateRepo:    dao.NewProjectTemplateDao(),
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
+		taskStagesRepo:         dao.NewTaskStagesDao(),
+		projectLogRepo:         dao.NewProjectLogDao(),
+		taskRepo:               dao.NewTaskDao(),
 	}
 }
 
@@ -66,7 +71,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	membetId := msg.MemberId
 	page := msg.Page
 	pageSize := msg.PageSize
-	var pms []*pro.ProjectAndMember
+	var pms []*data.ProjectAndMember
 	var total int64
 	var err error
 	if msg.SelectBy == "" || msg.SelectBy == "my" {
@@ -89,7 +94,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 			zap.L().Error("Project FindCollectProjectByMemId error", zap.Error(err))
 			return nil, errs.GrpcError(model.DBError)
 		}
-		var cMap = make(map[int64]*pro.ProjectAndMember)
+		var cMap = make(map[int64]*data.ProjectAndMember)
 		for _, pm := range collectPms {
 			cMap[pm.Id] = pm
 		}
@@ -112,7 +117,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, msg *project.Pr
 	err = copier.Copy(&pmm, pms)
 	for _, v := range pmm {
 		v.Code, _ = encrypts.EncryptInt64(v.ProjectCode, model.AESKey)
-		pam := pro.ToMap(pms)[v.Id]
+		pam := data.ToMap(pms)[v.Id]
 		v.AccessControlType = pam.GetAccessControlType()
 		v.OrganizationCode, _ = encrypts.EncryptInt64(pam.OrganizationCode, model.AESKey)
 		v.JoinTime = tms.FormatByMill(pam.JoinTime)
@@ -129,7 +134,7 @@ func (p *ProjectService) FindProjectTemplate(ctx context.Context, msg *project.P
 	page := msg.Page
 	pageSize := msg.PageSize
 	var err error
-	var pts []pro.ProjectTemplate
+	var pts []data.ProjectTemplate
 	var total int64
 	if msg.ViewType == -1 {
 		pts, total, err = p.projectTemplateRepo.FindProjectTemplateAll(ctx, organizationCode, page, pageSize)
@@ -146,14 +151,14 @@ func (p *ProjectService) FindProjectTemplate(ctx context.Context, msg *project.P
 	}
 
 	//拿到id列表， 去任务步骤模板表进行查询
-	tsts, err := p.taskStagesTemplateRepo.FindInProTemIds(ctx, pro.ToProjectTemplateIds(pts))
+	tsts, err := p.taskStagesTemplateRepo.FindInProTemIds(ctx, data.ToProjectTemplateIds(pts))
 	if err != nil {
 		zap.L().Error("FindProjectTemplate FindInProTemIds err", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
 	}
-	var ptas []*pro.ProjectTemplateAll
+	var ptas []*data.ProjectTemplateAll
 	for _, pt := range pts {
-		ptas = append(ptas, pt.Convert(task.CovertProjectMap(tsts)[pt.Id]))
+		ptas = append(ptas, pt.Convert(data.CovertProjectMap(tsts)[pt.Id]))
 	}
 
 	//组装数据 返回
@@ -170,7 +175,16 @@ func (ps *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectR
 	organizationCode, _ := strconv.ParseInt(organizationCodeStr, 10, 64)
 	templateCodeStr, _ := encrypts.Decrypt(msg.TemplateCode, model.AESKey)
 	templateCode, _ := strconv.ParseInt(templateCodeStr, 10, 64)
-	pr := &pro.Project{
+
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	stageTemplateList, err := ps.taskStagesTemplateRepo.FindByProjectTemplateId(c, int(templateCode))
+	if err != nil {
+		zap.L().Error("project SaveProject taskStagesTemplateRepo.FindByProjectTemplateId error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+
+	pr := &data.Project{
 		Name:              msg.Name,
 		Description:       msg.Description,
 		TemplateCode:      int(templateCode),
@@ -183,20 +197,20 @@ func (ps *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectR
 		TaskBoardTheme:    model.Simple,
 	}
 	var rsp *project.SaveProjectMessage
-	err := ps.transaction.Action(func(conn database.DBConn) error {
-		err := ps.projectRepo.SaveProject(ctx, conn, pr)
+	err = ps.transaction.Action(func(conn database.DBConn) error {
+		err := ps.projectRepo.SaveProject(c, conn, pr)
 		if err != nil {
 			zap.L().Error("SaveProject SaveProject error", zap.Error(err))
 			return errs.GrpcError(model.DBError)
 		}
-		pm := &pro.MemberProject{
+		pm := &data.MemberProject{
 			ProjectCode: pr.Id,
 			MemberCode:  msg.MemberId,
 			JoinTime:    time.Now().UnixMilli(),
 			IsOwner:     msg.MemberId,
 			Authorize:   "",
 		}
-		err = ps.projectRepo.SaveProjectMember(ctx, conn, pm)
+		err = ps.projectRepo.SaveProjectMember(c, conn, pm)
 		if err != nil {
 			zap.L().Error("SaveProject SaveProjectMember error", zap.Error(err))
 			return errs.GrpcError(model.DBError)
@@ -210,6 +224,23 @@ func (ps *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectR
 			Cover:            pr.Cover,
 			CreateTime:       tms.FormatByMill(pr.CreateTime),
 			TaskBoardTheme:   pr.TaskBoardTheme,
+		}
+
+		//3. 保存任务步骤
+		for index, v := range stageTemplateList {
+			stages := &data.TaskStages{
+				Name:        v.Name,
+				Description: "",
+				Sort:        index,
+				CreateTime:  time.Now().UnixMilli(),
+				ProjectCode: pr.Id,
+				Deleted:     model.NoDeleted,
+			}
+			err = ps.taskStagesRepo.SaveTaskStages(c, conn, stages)
+			if err != nil {
+				zap.L().Error("project SaveProject SaveTaskStages error", zap.Error(err))
+				return errs.GrpcError(model.DBError)
+			}
 		}
 		return nil
 	})
@@ -280,7 +311,7 @@ func (ps *ProjectService) UpdateProject(ctx context.Context, msg *project.Update
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	proj := &pro.Project{
+	proj := &data.Project{
 		Id:                 projectCode,
 		Name:               msg.Name,
 		Description:        msg.Description,
@@ -300,4 +331,58 @@ func (ps *ProjectService) UpdateProject(ctx context.Context, msg *project.Update
 		return nil, errs.GrpcError(model.DBError)
 	}
 	return &project.UpdateProjectResponse{}, nil
+}
+
+func (ps *ProjectService) GetLogBySelfProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.ProjectLogResponse, error) {
+	//根据用户id查询当前的用户的日志表
+
+	projectLogs, total, err := ps.projectLogRepo.FindLogByMemberCode(context.Background(), msg.MemberId, msg.Page, msg.PageSize)
+	if err != nil {
+		zap.L().Error("project ProjectService::GetLogBySelfProject projectLogRepo.FindLogByMemberCode error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	//查询项目信息
+	pIdList := make([]int64, len(projectLogs))
+	mIdList := make([]int64, len(projectLogs))
+	taskIdList := make([]int64, len(projectLogs))
+	for _, v := range projectLogs {
+		pIdList = append(pIdList, v.ProjectCode)
+		mIdList = append(mIdList, v.MemberCode)
+		taskIdList = append(taskIdList, v.SourceCode)
+	}
+	projects, err := ps.projectRepo.FindProjectByIds(context.Background(), pIdList)
+	if err != nil {
+		zap.L().Error("project ProjectService::GetLogBySelfProject projectLogRepo.FindProjectByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	pMap := make(map[int64]*data.Project)
+	for _, v := range projects {
+		pMap[v.Id] = v
+	}
+	messageList, _ := rpc.LoginServiceClient.FindMemInfoByIds(context.Background(), &login.UserMessage{MIds: mIdList})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range messageList.List {
+		mMap[v.Id] = v
+	}
+	tasks, err := ps.taskRepo.FindTaskByIds(context.Background(), taskIdList)
+	if err != nil {
+		zap.L().Error("project ProjectService::GetLogBySelfProject projectLogRepo.FindTaskByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DBError)
+	}
+	tMap := make(map[int64]*data.Task)
+	for _, v := range tasks {
+		tMap[v.Id] = v
+	}
+	var list []*data.IndexProjectLogDisplay
+	for _, v := range projectLogs {
+		display := v.ToIndexDisplay()
+		display.ProjectName = pMap[v.ProjectCode].Name
+		display.MemberAvatar = mMap[v.MemberCode].Avatar
+		display.MemberName = mMap[v.MemberCode].Name
+		display.TaskName = tMap[v.SourceCode].Name
+		list = append(list, display)
+	}
+	var msgList []*project.ProjectLogMessage
+	copier.Copy(&msgList, list)
+	return &project.ProjectLogResponse{List: msgList, Total: total}, nil
 }

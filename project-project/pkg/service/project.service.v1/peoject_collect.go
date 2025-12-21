@@ -9,7 +9,7 @@ import (
 	"gwh.com/project-common/encrypts"
 	"gwh.com/project-common/errs"
 	"gwh.com/project-grpc/project"
-	"gwh.com/project-project/internal/data/pro"
+	"gwh.com/project-project/internal/data"
 	"gwh.com/project-project/pkg/model"
 )
 
@@ -20,7 +20,7 @@ func (ps *ProjectService) UpdateCollectProject(ctx context.Context, msg *project
 	defer cancel()
 	var err error
 	if "collect" == msg.CollectType {
-		pc := &pro.CollectionProject{
+		pc := &data.CollectionProject{
 			ProjectCode: projectCode,
 			MemberCode:  msg.MemberId,
 			CreateTime:  time.Now().UnixMilli(),
