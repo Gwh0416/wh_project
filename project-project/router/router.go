@@ -9,11 +9,17 @@ import (
 	"google.golang.org/grpc/resolver"
 	"gwh.com/project-common/discovery"
 	"gwh.com/project-common/logs"
+	"gwh.com/project-grpc/account"
+	"gwh.com/project-grpc/auth"
+	"gwh.com/project-grpc/department"
 	"gwh.com/project-grpc/project"
 	"gwh.com/project-grpc/task"
 	"gwh.com/project-project/config"
 	"gwh.com/project-project/internal/interceptor"
 	"gwh.com/project-project/internal/rpc"
+	account_service_v1 "gwh.com/project-project/pkg/service/account.service.v1"
+	auth_service_v1 "gwh.com/project-project/pkg/service/auth.service.v1"
+	department_service_v1 "gwh.com/project-project/pkg/service/department.service.v1"
 	project_service_v1 "gwh.com/project-project/pkg/service/project.service.v1"
 	task_service_v1 "gwh.com/project-project/pkg/service/task.service.v1"
 )
@@ -58,6 +64,9 @@ func RegisterGrpc() *grpc.Server {
 		RegisterFunc: func(g *grpc.Server) {
 			project.RegisterProjectServiceServer(g, project_service_v1.NewProjectService())
 			task.RegisterTaskServiceServer(g, task_service_v1.NewTaskService())
+			account.RegisterAccountServiceServer(g, account_service_v1.New())
+			department.RegisterDepartmentServiceServer(g, department_service_v1.New())
+			auth.RegisterAuthServiceServer(g, auth_service_v1.New())
 		}}
 	s := grpc.NewServer(interceptor.New().Cache())
 	c.RegisterFunc(s)

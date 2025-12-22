@@ -9,6 +9,9 @@ import (
 	"gwh.com/project-api/config"
 	"gwh.com/project-common/discovery"
 	"gwh.com/project-common/logs"
+	"gwh.com/project-grpc/account"
+	"gwh.com/project-grpc/auth"
+	"gwh.com/project-grpc/department"
 	"gwh.com/project-grpc/project"
 	"gwh.com/project-grpc/task"
 )
@@ -16,6 +19,12 @@ import (
 var ProjectServiceClient project.ProjectServiceClient
 
 var TaskServiceClient task.TaskServiceClient
+
+var AccountServiceClient account.AccountServiceClient
+
+var DepartmentServiceClient department.DepartmentServiceClient
+
+var AuthServiceClient auth.AuthServiceClient
 
 func InitRpcProjectClient() {
 	etcdRegister := discovery.NewResolver(config.AppConf.EC.Addrs, logs.LG)
@@ -26,4 +35,8 @@ func InitRpcProjectClient() {
 	}
 	ProjectServiceClient = project.NewProjectServiceClient(conn)
 	TaskServiceClient = task.NewTaskServiceClient(conn)
+	AccountServiceClient = account.NewAccountServiceClient(conn)
+	DepartmentServiceClient = department.NewDepartmentServiceClient(conn)
+	AuthServiceClient = auth.NewAuthServiceClient(conn)
+
 }

@@ -16,3 +16,8 @@ func ParseGrpcError(err error) (common.BusinessCode, string) {
 	msg := fromError.Message()
 	return common.BusinessCode(code), msg
 }
+
+func ToBError(err error) *BError {
+	fromError, _ := status.FromError(err)
+	return NewError(ErrorCode(fromError.Code()), fromError.Message())
+}

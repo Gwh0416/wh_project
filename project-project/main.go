@@ -10,12 +10,12 @@ import (
 func main() {
 	r := gin.Default()
 	router.InitRouter(r)
+	router.InitUserRpc()
 	gc := router.RegisterGrpc()
 	router.RegisterEtcdServer()
 	stop := func() {
 		gc.Stop()
 	}
 	//初始化rpc
-	router.InitUserRpc()
 	common.Run(r, config.AppConf.SC.Name, config.AppConf.SC.Addr, stop)
 }
