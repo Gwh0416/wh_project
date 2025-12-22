@@ -1,22 +1,30 @@
 package config
 
 import (
+	"log"
+	"os"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"gwh.com/project-common/logs"
-	"log"
-	"os"
 )
 
 var AppConf = InitConfig()
 
 type Config struct {
-	viper *viper.Viper
-	SC    *ServerConfig
-	GC    *GrpcConfig
-	EC    *EtcdConfig
-	MC    *MysqlConfig
-	JC    *JwtConfig
+	viper    *viper.Viper
+	SC       *ServerConfig
+	GC       *GrpcConfig
+	EC       *EtcdConfig
+	MC       *MysqlConfig
+	JC       *JwtConfig
+	DbConfig DbConfig
+}
+
+type DbConfig struct {
+	Master     MysqlConfig
+	Slave      []MysqlConfig
+	Separation bool
 }
 
 type ServerConfig struct {
@@ -41,6 +49,7 @@ type MysqlConfig struct {
 	Host     string
 	Port     int
 	Db       string
+	Name     string
 }
 
 type JwtConfig struct {
@@ -69,6 +78,7 @@ func InitConfig() *Config {
 	conf.ReadEtcdConfig()
 	conf.InitMysqlConfig()
 	conf.InitJwtConfig()
+	conf.InitDbConfig()
 	return conf
 }
 
@@ -141,4 +151,24 @@ func (c *Config) InitJwtConfig() {
 		RefreshSecret: c.viper.GetString("jwt.refreshSecret"),
 	}
 	c.JC = jc
+}
+
+func (c *Config) InitDbConfig() {
+	mc := DbConfig{}
+	mc.Separation = c.viper.GetBool("db.separation")
+	var slaves []MysqlConfig
+	err := c.viper.UnmarshalKey("db.slave", &slaves)
+	if err != nil {
+		panic(err)
+	}
+	master := MysqlConfig{
+		Username: c.viper.GetString("db.master.username"),
+		Password: c.viper.GetString("db.master.password"),
+		Host:     c.viper.GetString("db.master.host"),
+		Port:     c.viper.GetInt("db.master.port"),
+		Db:       c.viper.GetString("db.master.db"),
+	}
+	mc.Master = master
+	mc.Slave = slaves
+	c.DbConfig = mc
 }

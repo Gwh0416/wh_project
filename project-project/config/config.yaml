@@ -27,6 +27,28 @@ mysql:
   host: "127.0.0.1"
   port: 3309
   db: whproject
+db:
+  separation: false
+  master:
+    name: master
+    username: root
+    password: "Gwh0416."
+    host: 127.0.0.1
+    port: 3309
+    db: whproject
+  slave:
+    - username: root
+      password: "Gwh0416."
+      host: 127.0.0.1
+      port: 3309
+      db: whproject_slave1
+      name: slave1
+    - username: root
+      password: "Gwh0416."
+      host: 127.0.0.1
+      port: 3309
+      db: whproject_slave1
+      name: slave2
 jwt:
   accessExp: 2
   refreshExp: 14
