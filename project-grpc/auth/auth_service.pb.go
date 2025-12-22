@@ -27,6 +27,9 @@ type AuthReqMessage struct {
 	OrganizationCode string                 `protobuf:"bytes,2,opt,name=organizationCode,proto3" json:"organizationCode,omitempty"`
 	Page             int64                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
 	PageSize         int64                  `protobuf:"varint,4,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	Action           string                 `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
+	AuthId           int64                  `protobuf:"varint,6,opt,name=authId,proto3" json:"authId,omitempty"`
+	Nodes            []string               `protobuf:"bytes,7,rep,name=nodes,proto3" json:"nodes,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -87,6 +90,27 @@ func (x *AuthReqMessage) GetPageSize() int64 {
 		return x.PageSize
 	}
 	return 0
+}
+
+func (x *AuthReqMessage) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *AuthReqMessage) GetAuthId() int64 {
+	if x != nil {
+		return x.AuthId
+	}
+	return 0
+}
+
+func (x *AuthReqMessage) GetNodes() []string {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
 }
 
 type ProjectAuth struct {
@@ -265,16 +289,231 @@ func (x *ListAuthMessage) GetTotal() int64 {
 	return 0
 }
 
+type ProjectNodeMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Node          string                 `protobuf:"bytes,2,opt,name=node,proto3" json:"node,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Pnode         string                 `protobuf:"bytes,4,opt,name=pnode,proto3" json:"pnode,omitempty"`
+	IsLogin       int32                  `protobuf:"varint,5,opt,name=isLogin,proto3" json:"isLogin,omitempty"`
+	IsMenu        int32                  `protobuf:"varint,6,opt,name=isMenu,proto3" json:"isMenu,omitempty"`
+	IsAuth        int32                  `protobuf:"varint,7,opt,name=isAuth,proto3" json:"isAuth,omitempty"`
+	Checked       bool                   `protobuf:"varint,8,opt,name=checked,proto3" json:"checked,omitempty"`
+	Key           string                 `protobuf:"bytes,9,opt,name=key,proto3" json:"key,omitempty"`
+	Children      []*ProjectNodeMessage  `protobuf:"bytes,10,rep,name=children,proto3" json:"children,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectNodeMessage) Reset() {
+	*x = ProjectNodeMessage{}
+	mi := &file_auth_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectNodeMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectNodeMessage) ProtoMessage() {}
+
+func (x *ProjectNodeMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectNodeMessage.ProtoReflect.Descriptor instead.
+func (*ProjectNodeMessage) Descriptor() ([]byte, []int) {
+	return file_auth_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ProjectNodeMessage) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetNode() string {
+	if x != nil {
+		return x.Node
+	}
+	return ""
+}
+
+func (x *ProjectNodeMessage) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *ProjectNodeMessage) GetPnode() string {
+	if x != nil {
+		return x.Pnode
+	}
+	return ""
+}
+
+func (x *ProjectNodeMessage) GetIsLogin() int32 {
+	if x != nil {
+		return x.IsLogin
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetIsMenu() int32 {
+	if x != nil {
+		return x.IsMenu
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetIsAuth() int32 {
+	if x != nil {
+		return x.IsAuth
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetChecked() bool {
+	if x != nil {
+		return x.Checked
+	}
+	return false
+}
+
+func (x *ProjectNodeMessage) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ProjectNodeMessage) GetChildren() []*ProjectNodeMessage {
+	if x != nil {
+		return x.Children
+	}
+	return nil
+}
+
+type ApplyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ProjectNodeMessage  `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	CheckedList   []string               `protobuf:"bytes,2,rep,name=checkedList,proto3" json:"checkedList,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ApplyResponse) Reset() {
+	*x = ApplyResponse{}
+	mi := &file_auth_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApplyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApplyResponse) ProtoMessage() {}
+
+func (x *ApplyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApplyResponse.ProtoReflect.Descriptor instead.
+func (*ApplyResponse) Descriptor() ([]byte, []int) {
+	return file_auth_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ApplyResponse) GetList() []*ProjectNodeMessage {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
+func (x *ApplyResponse) GetCheckedList() []string {
+	if x != nil {
+		return x.CheckedList
+	}
+	return nil
+}
+
+type AuthNodesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []string               `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthNodesResponse) Reset() {
+	*x = AuthNodesResponse{}
+	mi := &file_auth_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthNodesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthNodesResponse) ProtoMessage() {}
+
+func (x *AuthNodesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthNodesResponse.ProtoReflect.Descriptor instead.
+func (*AuthNodesResponse) Descriptor() ([]byte, []int) {
+	return file_auth_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *AuthNodesResponse) GetList() []string {
+	if x != nil {
+		return x.List
+	}
+	return nil
+}
+
 var File_auth_service_proto protoreflect.FileDescriptor
 
 const file_auth_service_proto_rawDesc = "" +
 	"\n" +
-	"\x12auth_service.proto\x12\x0fauth.service.v1\"\x88\x01\n" +
+	"\x12auth_service.proto\x12\x0fauth.service.v1\"\xce\x01\n" +
 	"\x0eAuthReqMessage\x12\x1a\n" +
 	"\bmemberId\x18\x01 \x01(\x03R\bmemberId\x12*\n" +
 	"\x10organizationCode\x18\x02 \x01(\tR\x10organizationCode\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x1a\n" +
-	"\bpageSize\x18\x04 \x01(\x03R\bpageSize\"\xa7\x02\n" +
+	"\bpageSize\x18\x04 \x01(\x03R\bpageSize\x12\x16\n" +
+	"\x06action\x18\x05 \x01(\tR\x06action\x12\x16\n" +
+	"\x06authId\x18\x06 \x01(\x03R\x06authId\x12\x14\n" +
+	"\x05nodes\x18\a \x03(\tR\x05nodes\"\xa7\x02\n" +
 	"\vProjectAuth\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12*\n" +
 	"\x10OrganizationCode\x18\x02 \x01(\tR\x10OrganizationCode\x12\x14\n" +
@@ -290,9 +529,28 @@ const file_auth_service_proto_rawDesc = "" +
 	"\tCanDelete\x18\v \x01(\x05R\tCanDelete\"Y\n" +
 	"\x0fListAuthMessage\x120\n" +
 	"\x04list\x18\x01 \x03(\v2\x1c.auth.service.v1.ProjectAuthR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total2^\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\x9b\x02\n" +
+	"\x12ProjectNodeMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04node\x18\x02 \x01(\tR\x04node\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
+	"\x05pnode\x18\x04 \x01(\tR\x05pnode\x12\x18\n" +
+	"\aisLogin\x18\x05 \x01(\x05R\aisLogin\x12\x16\n" +
+	"\x06isMenu\x18\x06 \x01(\x05R\x06isMenu\x12\x16\n" +
+	"\x06isAuth\x18\a \x01(\x05R\x06isAuth\x12\x18\n" +
+	"\achecked\x18\b \x01(\bR\achecked\x12\x10\n" +
+	"\x03key\x18\t \x01(\tR\x03key\x12?\n" +
+	"\bchildren\x18\n" +
+	" \x03(\v2#.auth.service.v1.ProjectNodeMessageR\bchildren\"j\n" +
+	"\rApplyResponse\x127\n" +
+	"\x04list\x18\x01 \x03(\v2#.auth.service.v1.ProjectNodeMessageR\x04list\x12 \n" +
+	"\vcheckedList\x18\x02 \x03(\tR\vcheckedList\"'\n" +
+	"\x11AuthNodesResponse\x12\x12\n" +
+	"\x04list\x18\x01 \x03(\tR\x04list2\x88\x02\n" +
 	"\vAuthService\x12O\n" +
-	"\bAuthList\x12\x1f.auth.service.v1.AuthReqMessage\x1a .auth.service.v1.ListAuthMessage\"\x00B\"Z project-project/pkg/service/authb\x06proto3"
+	"\bAuthList\x12\x1f.auth.service.v1.AuthReqMessage\x1a .auth.service.v1.ListAuthMessage\"\x00\x12J\n" +
+	"\x05Apply\x12\x1f.auth.service.v1.AuthReqMessage\x1a\x1e.auth.service.v1.ApplyResponse\"\x00\x12\\\n" +
+	"\x13AuthNodesByMemberId\x12\x1f.auth.service.v1.AuthReqMessage\x1a\".auth.service.v1.AuthNodesResponse\"\x00B\"Z project-project/pkg/service/authb\x06proto3"
 
 var (
 	file_auth_service_proto_rawDescOnce sync.Once
@@ -306,21 +564,30 @@ func file_auth_service_proto_rawDescGZIP() []byte {
 	return file_auth_service_proto_rawDescData
 }
 
-var file_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_auth_service_proto_goTypes = []any{
-	(*AuthReqMessage)(nil),  // 0: auth.service.v1.AuthReqMessage
-	(*ProjectAuth)(nil),     // 1: auth.service.v1.ProjectAuth
-	(*ListAuthMessage)(nil), // 2: auth.service.v1.ListAuthMessage
+	(*AuthReqMessage)(nil),     // 0: auth.service.v1.AuthReqMessage
+	(*ProjectAuth)(nil),        // 1: auth.service.v1.ProjectAuth
+	(*ListAuthMessage)(nil),    // 2: auth.service.v1.ListAuthMessage
+	(*ProjectNodeMessage)(nil), // 3: auth.service.v1.ProjectNodeMessage
+	(*ApplyResponse)(nil),      // 4: auth.service.v1.ApplyResponse
+	(*AuthNodesResponse)(nil),  // 5: auth.service.v1.AuthNodesResponse
 }
 var file_auth_service_proto_depIdxs = []int32{
 	1, // 0: auth.service.v1.ListAuthMessage.list:type_name -> auth.service.v1.ProjectAuth
-	0, // 1: auth.service.v1.AuthService.AuthList:input_type -> auth.service.v1.AuthReqMessage
-	2, // 2: auth.service.v1.AuthService.AuthList:output_type -> auth.service.v1.ListAuthMessage
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	3, // 1: auth.service.v1.ProjectNodeMessage.children:type_name -> auth.service.v1.ProjectNodeMessage
+	3, // 2: auth.service.v1.ApplyResponse.list:type_name -> auth.service.v1.ProjectNodeMessage
+	0, // 3: auth.service.v1.AuthService.AuthList:input_type -> auth.service.v1.AuthReqMessage
+	0, // 4: auth.service.v1.AuthService.Apply:input_type -> auth.service.v1.AuthReqMessage
+	0, // 5: auth.service.v1.AuthService.AuthNodesByMemberId:input_type -> auth.service.v1.AuthReqMessage
+	2, // 6: auth.service.v1.AuthService.AuthList:output_type -> auth.service.v1.ListAuthMessage
+	4, // 7: auth.service.v1.AuthService.Apply:output_type -> auth.service.v1.ApplyResponse
+	5, // 8: auth.service.v1.AuthService.AuthNodesByMemberId:output_type -> auth.service.v1.AuthNodesResponse
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_auth_service_proto_init() }
@@ -334,7 +601,7 @@ func file_auth_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_service_proto_rawDesc), len(file_auth_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

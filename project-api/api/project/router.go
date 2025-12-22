@@ -23,6 +23,9 @@ func (*RouterProject) Register(r *gin.Engine) {
 	h := NewHandlerProject()
 	group := r.Group("/project")
 	group.Use(midd.TokenVerify())
+	group.Use(Auth())
+	group.Use(ProjectAuth())
+
 	group.POST("/index", h.index)
 	group.POST("/project/selfList", h.myProjectList)
 	group.POST("/project", h.myProjectList)
@@ -34,6 +37,7 @@ func (*RouterProject) Register(r *gin.Engine) {
 	group.POST("/project_collect/collect", h.collectProject)
 	group.POST("/project/edit", h.editProject)
 	group.POST("/project/getLogBySelfProject", h.getLogBySelfProject)
+	group.POST("/node", h.nodeList)
 
 	t := NewTask()
 	group.POST("/task_stages", t.taskStages)
@@ -54,6 +58,7 @@ func (*RouterProject) Register(r *gin.Engine) {
 
 	a := NewAccount()
 	group.POST("/account", a.account)
+
 	d := NewDepartment()
 	group.POST("/department", d.department)
 	group.POST("/department/save", d.save)
@@ -61,4 +66,8 @@ func (*RouterProject) Register(r *gin.Engine) {
 
 	auth := NewAuth()
 	group.POST("/auth", auth.authList)
+	group.POST("/auth/apply", auth.apply)
+
+	menu := NewMenu()
+	group.POST("/menu/menu", menu.menuList)
 }

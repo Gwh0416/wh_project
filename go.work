@@ -6,4 +6,5 @@ use (
 	./project-api
 	./project-grpc
 	./project-project
+	./profile_test
 )

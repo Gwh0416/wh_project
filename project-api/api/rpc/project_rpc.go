@@ -12,6 +12,7 @@ import (
 	"gwh.com/project-grpc/account"
 	"gwh.com/project-grpc/auth"
 	"gwh.com/project-grpc/department"
+	"gwh.com/project-grpc/menu"
 	"gwh.com/project-grpc/project"
 	"gwh.com/project-grpc/task"
 )
@@ -26,6 +27,8 @@ var DepartmentServiceClient department.DepartmentServiceClient
 
 var AuthServiceClient auth.AuthServiceClient
 
+var MenuServiceClient menu.MenuServiceClient
+
 func InitRpcProjectClient() {
 	etcdRegister := discovery.NewResolver(config.AppConf.EC.Addrs, logs.LG)
 	resolver.Register(etcdRegister)
@@ -38,5 +41,6 @@ func InitRpcProjectClient() {
 	AccountServiceClient = account.NewAccountServiceClient(conn)
 	DepartmentServiceClient = department.NewDepartmentServiceClient(conn)
 	AuthServiceClient = auth.NewAuthServiceClient(conn)
+	MenuServiceClient = menu.NewMenuServiceClient(conn)
 
 }

@@ -15,9 +15,9 @@ import (
 	"gwh.com/project-grpc/user/login"
 	"gwh.com/project-project/internal/dao"
 	"gwh.com/project-project/internal/data"
-	"gwh.com/project-project/internal/data/menu"
 	"gwh.com/project-project/internal/database"
 	"gwh.com/project-project/internal/database/tran"
+	"gwh.com/project-project/internal/domain"
 	"gwh.com/project-project/internal/repo"
 	"gwh.com/project-project/internal/rpc"
 	"gwh.com/project-project/pkg/model"
@@ -34,6 +34,8 @@ type ProjectService struct {
 	taskStagesRepo         repo.TaskStagesRepo
 	projectLogRepo         repo.ProjectLogRepo
 	taskRepo               repo.TaskRepo
+	nodeDomain             *domain.ProjectNodeDomain
+	taskDomain             *domain.TaskDomain
 }
 
 func NewProjectService() *ProjectService {
@@ -47,6 +49,8 @@ func NewProjectService() *ProjectService {
 		taskStagesRepo:         dao.NewTaskStagesDao(),
 		projectLogRepo:         dao.NewProjectLogDao(),
 		taskRepo:               dao.NewTaskDao(),
+		nodeDomain:             domain.NewProjectNodeDomain(),
+		taskDomain:             domain.NewTaskDomain(),
 	}
 }
 
@@ -56,7 +60,7 @@ func (p *ProjectService) Index(context.Context, *project.IndexMessage) (*project
 		zap.L().Error("Index db FindMenus err", zap.Error(err))
 		return nil, errs.GrpcError(model.DBError)
 	}
-	childs := menu.CovertChild(pms)
+	childs := data.CovertChild(pms)
 	var mms []*project.MenuMessage
 	err = copier.Copy(&mms, childs)
 	if err != nil {
@@ -385,4 +389,62 @@ func (ps *ProjectService) GetLogBySelfProject(ctx context.Context, msg *project.
 	var msgList []*project.ProjectLogMessage
 	copier.Copy(&msgList, list)
 	return &project.ProjectLogResponse{List: msgList, Total: total}, nil
+}
+
+func (ps *ProjectService) FindProjectByMemberId(ctx context.Context, msg *project.ProjectRpcMessage) (*project.FindProjectByMemberIdResponse, error) {
+	isProjectCode := false
+	var projectId int64
+	if msg.ProjectCode != "" {
+		projectId = encrypts.DecryptNoErr(msg.ProjectCode)
+		isProjectCode = true
+	}
+	isTaskCode := false
+	var taskId int64
+	if msg.TaskCode != "" {
+		taskId = encrypts.DecryptNoErr(msg.TaskCode)
+		isTaskCode = true
+	}
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	if !isProjectCode && isTaskCode {
+		projectCode, ok, bError := ps.taskDomain.FindProjectIdByTaskId(taskId)
+		if bError != nil {
+			return nil, bError
+		}
+		if !ok {
+			return &project.FindProjectByMemberIdResponse{
+				Project:  nil,
+				IsOwner:  false,
+				IsMember: false,
+			}, nil
+		}
+		projectId = projectCode
+		isProjectCode = true
+	}
+	if isProjectCode {
+		//根据projectid和memberid查询
+		pm, err := ps.projectRepo.FindProjectByPIdAndMemId(c, projectId, msg.MemberId)
+		if err != nil {
+			return nil, model.DBError
+		}
+		if pm == nil {
+			return &project.FindProjectByMemberIdResponse{
+				Project:  nil,
+				IsOwner:  false,
+				IsMember: false,
+			}, nil
+		}
+		projectMessage := &project.ProjectMessage{}
+		copier.Copy(projectMessage, pm)
+		isOwner := false
+		if pm.IsOwner == 1 {
+			isOwner = true
+		}
+		return &project.FindProjectByMemberIdResponse{
+			Project:  projectMessage,
+			IsOwner:  isOwner,
+			IsMember: true,
+		}, nil
+	}
+	return &project.FindProjectByMemberIdResponse{}, nil
 }
