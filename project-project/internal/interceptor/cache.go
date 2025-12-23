@@ -3,6 +3,7 @@ package interceptor
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -30,8 +31,9 @@ func New() *CacheInterceptor {
 	return &CacheInterceptor{cache: dao.Rc, cacheMap: cacheMap}
 }
 
-func (c *CacheInterceptor) Cache() grpc.ServerOption {
-	return grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+func (c *CacheInterceptor) CacheInterceptor() func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		c = New()
 		respType := c.cacheMap[info.FullMethod]
 		if respType == nil {
 			return handler(ctx, req)
@@ -51,6 +53,10 @@ func (c *CacheInterceptor) Cache() grpc.ServerOption {
 		bytes, _ := json.Marshal(resp)
 		c.cache.Put(con, info.FullMethod+"::"+cacheKey, string(bytes), 5*time.Minute)
 		zap.L().Info(info.FullMethod + " 放入缓存")
+		//hash key task field rediskey
+		if strings.HasPrefix(info.FullMethod, "/task") {
+			c.cache.HSet(con, "task", info.FullMethod+"::"+cacheKey, "")
+		}
 		return
-	})
+	}
 }
