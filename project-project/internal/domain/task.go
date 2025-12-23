@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"gwh.com/project-common/errs"
+	"gwh.com/project-common/kk"
+	"gwh.com/project-project/config"
 	"gwh.com/project-project/internal/dao"
 	"gwh.com/project-project/internal/repo"
 	"gwh.com/project-project/pkg/model"
@@ -20,8 +22,14 @@ func NewTaskDomain() *TaskDomain {
 }
 
 func (d *TaskDomain) FindProjectIdByTaskId(taskId int64) (int64, bool, *errs.BError) {
+	config.SendLog(kk.Info("Find", "TaskDomain.FindProjectIdByTaskId", kk.FieldMap{
+		"taskId": taskId,
+	}))
 	task, err := d.taskRepo.FindTaskById(context.Background(), taskId)
 	if err != nil {
+		config.SendLog(kk.Error(err, "TaskDomain.FindProjectIdByTaskId.taskRepo.FindTaskById", kk.FieldMap{
+			"taskId": taskId,
+		}))
 		return 0, false, model.DBError
 	}
 	if task == nil {

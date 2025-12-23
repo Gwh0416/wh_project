@@ -13,8 +13,11 @@ func main() {
 	router.InitUserRpc()
 	gc := router.RegisterGrpc()
 	router.RegisterEtcdServer()
+	c := config.InitKafkaWriter()
+
 	stop := func() {
 		gc.Stop()
+		c()
 	}
 	//初始化rpc
 	common.Run(r, config.AppConf.SC.Name, config.AppConf.SC.Addr, stop)
